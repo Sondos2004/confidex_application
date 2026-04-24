@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
-import '../../widgets/dashed_card.dart';
+import '../../core/theme/theme_ext.dart';
+import '../../core/routes/app_routes.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../widgets/glass_container.dart';
 
 enum PracticeState { upload, analyzing, report }
 
@@ -16,6 +20,87 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   PracticeState _currentState = PracticeState.upload;
   double _videoProgress = 0.0;
   double _docProgress = 0.0;
+  XFile? _pickedVideo;
+  final _picker = ImagePicker();
+
+  Future<void> _showVideoOptions() async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: context.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: context.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentPurple.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.photo_library_rounded,
+                      color: AppColors.accentPurple),
+                ),
+                title: Text('Upload from Photos',
+                    style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        color: context.textPrimary)),
+                subtitle: Text('Choose a video from your gallery',
+                    style: GoogleFonts.inter(
+                        fontSize: 12, color: context.textSecondary)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final video =
+                      await _picker.pickVideo(source: ImageSource.gallery);
+                  if (video != null) setState(() => _pickedVideo = video);
+                },
+              ),
+              const SizedBox(height: 4),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentPink.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.videocam_rounded,
+                      color: AppColors.accentPink),
+                ),
+                title: Text('Record Now',
+                    style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        color: context.textPrimary)),
+                subtitle: Text('Record a new video with your camera',
+                    style: GoogleFonts.inter(
+                        fontSize: 12, color: context.textSecondary)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final video =
+                      await _picker.pickVideo(source: ImageSource.camera);
+                  if (video != null) setState(() => _pickedVideo = video);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   void _startAnalysis() {
     setState(() {
@@ -47,7 +132,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.bg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -55,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              _buildTopHeader(),
+              _buildTopHeader(context),
               const SizedBox(height: 24),
               Expanded(
                 child: AnimatedSwitcher(
@@ -70,40 +155,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTopHeader() {
-    String stepText = '';
-    switch (_currentState) {
-      case PracticeState.upload:
-        stepText = '02 • UPLOAD';
-        break;
-      case PracticeState.analyzing:
-        stepText = '03 • ANALYZING';
-        break;
-      case PracticeState.report:
-        stepText = '04 • REPORT';
-        break;
-    }
-
+  Widget _buildTopHeader(BuildContext context) {
     return Column(
       children: [
-        // Step Chip
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.accentPurple,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            stepText,
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
         // Logo and Title Row
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -115,7 +169,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.asset(
-                    'assets/images/logo_confidex.png',
+                    'assets/images/logo.png',
                     height: 36,
                     width: 36,
                     fit: BoxFit.cover,
@@ -143,7 +197,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 Text(
                   'Confidex',
                   style: GoogleFonts.inter(
-                    color: Colors.white,
+                    color: context.textPrimary,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
@@ -153,10 +207,35 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
             const Spacer(),
             // Profile Icon
-            const CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.surfaceLight,
-              child: Icon(Icons.person, color: Colors.white, size: 20),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: AppColors.primaryGradient,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: context.surface,
+                    ),
+                    child: ShaderMask(
+                      blendMode: BlendMode.srcIn,
+                      shaderCallback: (bounds) =>
+                          AppColors.primaryGradient.createShader(bounds),
+                      child: const Icon(
+                        Icons.person_rounded,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -183,128 +262,137 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       key: const ValueKey('upload'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Upload Your Practice Material',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
+        ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (b) => AppColors.primaryGradient.createShader(b),
+          child: Text(
+            'Upload Your Practice Material',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
         const SizedBox(height: 6),
         Text(
-          'Submit your recorded video and document for\nevaluation',
+          'Submit your recorded video for AI evaluation',
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
-            color: AppColors.textSecondary,
+            color: context.textSecondary,
             fontSize: 13,
             height: 1.4,
           ),
         ),
-        const SizedBox(height: 32),
-        
+        const SizedBox(height: 28),
         Expanded(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                _buildUploadSection(
-                  title: 'Upload Video',
-                  icon: Icons.videocam_rounded,
-                  buttonText: 'Browse Files',
-                  formats: 'Supported: MP4, MOV, AVI',
-                ),
-                const SizedBox(height: 24),
-                _buildUploadSection(
-                  title: 'Upload Document',
-                  icon: Icons.attach_file_rounded,
-                  buttonText: 'Upload Document',
-                  formats: 'Accepted: PDF, DOCX, PPT',
-                ),
-              ],
-            ),
+            child: _buildVideoUploadCard(),
           ),
         ),
-        
         _buildMainGradientButton(
-          text: '✨ Submit for Analysis',
+          text: 'Submit for Analysis',
           onPressed: _startAnalysis,
-        ),
+        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
         const SizedBox(height: 24),
       ],
-    );
+    ).animate().fadeIn(duration: 400.ms);
   }
 
-  Widget _buildUploadSection({
-    required String title, 
-    required IconData icon, 
-    required String buttonText,
-    required String formats
-  }) {
-    return DashedCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                title,
+  Widget _buildVideoUploadCard() {
+    final picked = _pickedVideo != null;
+    return GestureDetector(
+      onTap: _showVideoOptions,
+      child: GlassContainer(
+        borderRadius: 24,
+        padding: const EdgeInsets.all(28),
+        borderColor: picked ? AppColors.accentPurple : const Color(0x1AFFFFFF),
+        boxShadow: picked
+            ? [
+                BoxShadow(
+                  color: AppColors.accentPurple.withValues(alpha: 0.3),
+                  blurRadius: 30,
+                  spreadRadius: 2,
+                )
+              ]
+            : null,
+        child: Column(
+          children: [
+            // Icon zone
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                gradient: picked
+                    ? AppColors.primaryGradient
+                    : LinearGradient(
+                        colors: [
+                          AppColors.accentPurple.withValues(alpha: 0.15),
+                          AppColors.accentPink.withValues(alpha: 0.15),
+                        ],
+                      ),
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Icon(
+                picked ? Icons.check_circle_rounded : Icons.videocam_rounded,
+                color: picked ? Colors.white : AppColors.accentPurple,
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Title
+            ShaderMask(
+              blendMode: BlendMode.srcIn,
+              shaderCallback: (b) => AppColors.primaryGradient.createShader(b),
+              child: Text(
+                picked ? 'Video Ready' : 'Upload Video',
                 style: GoogleFonts.inter(
                   color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: AppColors.accentPurple,
-              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: Colors.white, size: 30),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Drag & Drop $title Here\nor',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.accentPurple,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              buttonText,
+            const SizedBox(height: 8),
+            Text(
+              picked
+                  ? _pickedVideo!.name
+                  : 'Tap to choose from your gallery\nor record a new video',
+              textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
+                color: context.textSecondary,
+                fontSize: 13,
+                height: 1.5,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 24),
+            const SizedBox(height: 24),
+            // Format badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.accentPurple.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.accentPurple.withValues(alpha: 0.25),
+                ),
+              ),
+              child: Text(
+                'MP4 • MOV • AVI',
+                style: GoogleFonts.inter(
+                  color: AppColors.accentPurple,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            formats,
-            style: GoogleFonts.inter(
-              color: AppColors.textHint,
-              fontSize: 11,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -317,26 +405,30 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       key: const ValueKey('analyzing'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Analyzing Your Submissions',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
+        context.applyTextGradient(
+          Text(
+            'Analyzing Your Submissions',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              color: context.textPrimary,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          "We're processing your uploaded video and document.",
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            color: AppColors.textSecondary,
-            fontSize: 13,
+        context.applyTextGradient(
+          Text(
+            "We're processing your uploaded video and document.",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              color: context.textSecondary,
+              fontSize: 13,
+            ),
           ),
         ),
         const SizedBox(height: 32),
-        
+
         Expanded(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -348,72 +440,84 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   icon: Icons.movie_creation_rounded,
                   progress: _videoProgress,
                 ),
-                const SizedBox(height: 16),
-                _buildAnalyzingCard(
-                  title: 'Processing Document...',
-                  subtitle: 'Extracting key content',
-                  icon: Icons.description_rounded,
-                  progress: _docProgress,
-                ),
               ],
             ),
           ),
         ),
-        
+
         // Animated Checkmark / Loader
         Center(
           child: Stack(
             alignment: Alignment.center,
             children: [
+              // Outer glowing ripple
               Container(
-                width: 120,
-                height: 120,
+                width: 140,
+                height: 140,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.surfaceLight, width: 2),
+                  color: AppColors.accentPurple.withValues(alpha: 0.05),
+                  border: Border.all(
+                      color: AppColors.accentPurple.withValues(alpha: 0.1),
+                      width: 1),
                 ),
               ),
               Container(
-                width: 90,
-                height: 90,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.border, width: 2),
+                  color: AppColors.accentPurple.withValues(alpha: 0.1),
+                  border: Border.all(
+                      color: AppColors.accentPurple.withValues(alpha: 0.2),
+                      width: 1.5),
                 ),
               ),
               Container(
-                width: 60,
-                height: 60,
-                decoration: const BoxDecoration(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.accentPurple,
+                  gradient: AppColors.primaryGradient,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accentPurple.withValues(alpha: 0.4),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
-                child: _videoProgress >= 1.0 
-                    ? const Icon(Icons.check_rounded, color: Colors.white, size: 30)
+                child: _videoProgress >= 1.0
+                    ? const Icon(Icons.check_rounded,
+                        color: Colors.white, size: 32)
                     : const CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        strokeWidth: 2,
+                        strokeWidth: 2.5,
                       ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 24),
-        Text(
-          'This might take a moment...',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            color: AppColors.textSecondary,
-            fontSize: 14,
+        context.applyTextGradient(
+          Text(
+            'This might take a moment...',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              color: context.textSecondary,
+              fontSize: 14,
+            ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          'AI is evaluating your confidence,\naccuracy & delivery style',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            color: AppColors.textHint,
-            fontSize: 12,
+        context.applyTextGradient(
+          Text(
+            'AI is evaluating your confidence,\naccuracy & delivery style',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              color: context.textHint,
+              fontSize: 12,
+            ),
           ),
         ),
         const SizedBox(height: 40),
@@ -421,18 +525,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAnalyzingCard({
-    required String title, 
-    required String subtitle, 
-    required IconData icon, 
-    required double progress
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
+  Widget _buildAnalyzingCard(
+      {required String title,
+      required String subtitle,
+      required IconData icon,
+      required double progress}) {
+    return GlassContainer(
+      borderRadius: 16,
+      borderColor: const Color(0x1AFFFFFF),
       child: Column(
         children: [
           Padding(
@@ -442,8 +542,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.accentPurple,
+                    gradient: AppColors.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.accentPurple.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                      )
+                    ],
                   ),
                   child: Icon(icon, color: Colors.white, size: 20),
                 ),
@@ -452,31 +559,38 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                      context.applyTextGradient(
+                        Text(
+                          title,
+                          style: GoogleFonts.inter(
+                            color: context.textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
                         style: GoogleFonts.inter(
-                          color: AppColors.textSecondary,
+                          color: context.textSecondary,
                           fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Text(
-                  '${(progress * 100).toInt()}%',
-                  style: GoogleFonts.inter(
-                    color: AppColors.accentPurple,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (bounds) =>
+                      AppColors.primaryGradient.createShader(bounds),
+                  child: Text(
+                    '${(progress * 100).toInt()}%',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -484,15 +598,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
           // Thin progress bar at bottom
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 16),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: AppColors.border,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Color.lerp(AppColors.accentPurple, Colors.white, 0.3)!,
-                ),
+                backgroundColor: context.border,
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(AppColors.accentPurple),
                 minHeight: 4,
               ),
             ),
@@ -513,12 +627,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              "Here's Your Report",
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+            ShaderMask(
+              blendMode: BlendMode.srcIn,
+              shaderCallback: (bounds) =>
+                  AppColors.primaryGradient.createShader(bounds),
+              child: Text(
+                "Here's Your Report",
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -530,13 +649,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           'Your practice material has been evaluated. Below are\nyour scores based on our analysis.',
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
-            color: AppColors.textSecondary,
+            color: context.textSecondary,
             fontSize: 12,
             height: 1.4,
           ),
         ),
         const SizedBox(height: 24),
-        
+
         Expanded(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -546,7 +665,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   title: 'Confidence Score',
                   score: '85/100',
                   icon: '👍',
-                  color: AppColors.scoreConfidence,
+                  color: AppColors.accentPurple,
                   progress: 0.85,
                 ),
                 const SizedBox(height: 16),
@@ -554,7 +673,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   title: 'Nervousness Score',
                   score: '34/100',
                   icon: '💜',
-                  color: AppColors.scoreNervousness,
+                  color: AppColors.accentPurple,
                   progress: 0.34,
                 ),
                 const SizedBox(height: 16),
@@ -562,7 +681,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   title: 'Accuracy Score',
                   score: '92/100',
                   icon: '🎯',
-                  color: AppColors.scoreAccuracy,
+                  color: AppColors.accentPurple,
                   progress: 0.92,
                 ),
                 const SizedBox(height: 16),
@@ -570,22 +689,22 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   title: 'Overall Performance',
                   score: 'Excellent',
                   icon: '⭐',
-                  color: AppColors.scoreOverall,
+                  color: AppColors.accentPurple,
                   progress: 0.9,
                   isTextScore: true,
                 ),
-              ],
+              ].animate(interval: 100.ms).fadeIn(duration: 400.ms).slideX(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
             ),
           ),
-        ),
-        
+        ).animate().fadeIn(duration: 500.ms),
+
         // Bottom Success Alert
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.border),
           ),
           child: Row(
             children: [
@@ -615,7 +734,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   Text(
                     'This might take a moment...',
                     style: GoogleFonts.inter(
-                      color: AppColors.textSecondary,
+                      color: context.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -625,11 +744,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
         ),
         const SizedBox(height: 16),
-        
-        _buildMainGradientButton(
+        _buildOutlinedButton(
           text: '📊 View Detailed Report',
           onPressed: () {
+            // TODO: Navigate to detailed report screen
+          },
+        ),
+        const SizedBox(height: 12),
+
+        _buildMainGradientButton(
+          text: '🔄 Start New Session',
+          onPressed: () {
             setState(() {
+              _pickedVideo = null;
               _currentState = PracticeState.upload;
             });
           },
@@ -640,20 +767,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildScoreCard({
-    required String title, 
-    required String score, 
-    required String icon, 
+    required String title,
+    required String score,
+    required String icon,
     required Color color,
     required double progress,
     bool isTextScore = false,
   }) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
+      borderRadius: 16,
+      borderColor: const Color(0x1AFFFFFF),
       child: Row(
         children: [
           Container(
@@ -663,26 +787,32 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(child: Text(icon, style: const TextStyle(fontSize: 18))),
+            child:
+                Center(child: Text(icon, style: const TextStyle(fontSize: 18))),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (bounds) =>
+                      AppColors.primaryGradient.createShader(bounds),
+                  child: Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   height: 3,
                   width: double.infinity,
-                  color: AppColors.border,
+                  color: context.border,
                   child: FractionallySizedBox(
                     alignment: Alignment.centerLeft,
                     widthFactor: progress,
@@ -699,12 +829,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              score,
-              style: GoogleFonts.inter(
-                color: color,
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
+            child: ShaderMask(
+              blendMode: BlendMode.srcIn,
+              shaderCallback: (bounds) =>
+                  AppColors.primaryGradient.createShader(bounds),
+              child: Text(
+                score,
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ),
@@ -716,7 +851,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // ---------------------------------------------------------
   // SHARED WIDGETS
   // ---------------------------------------------------------
-  Widget _buildMainGradientButton({required String text, required VoidCallback onPressed}) {
+  Widget _buildMainGradientButton(
+      {required String text, required VoidCallback onPressed}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -734,6 +870,36 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 text,
                 style: GoogleFonts.inter(
                   color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOutlinedButton(
+      {required String text, required VoidCallback onPressed}) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.accentPurple, width: 2),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: Text(
+                text,
+                style: GoogleFonts.inter(
+                  color: AppColors.accentPurple,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),

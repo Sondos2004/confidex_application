@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_ext.dart';
 import '../../core/routes/app_routes.dart';
 import '../../widgets/gradient_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../core/providers/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -34,8 +38,7 @@ class _SignupScreenState extends State<SignupScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
-    _fadeAnim =
-        CurvedAnimation(parent: _entryController, curve: Curves.easeIn);
+    _fadeAnim = CurvedAnimation(parent: _entryController, curve: Curves.easeIn);
   }
 
   @override
@@ -57,11 +60,10 @@ class _SignupScreenState extends State<SignupScreen>
             style: GoogleFonts.inter(color: Colors.white),
           ),
           backgroundColor: AppColors.error,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           behavior: SnackBarBehavior.floating,
-          margin:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
       );
       return;
@@ -70,6 +72,10 @@ class _SignupScreenState extends State<SignupScreen>
       setState(() => _isLoading = true);
       await Future.delayed(const Duration(milliseconds: 1500));
       if (mounted) {
+        final email = _emailController.text.trim();
+        final name = _nameController.text.trim();
+        await context.read<UserProvider>().saveUser(name: name, email: email);
+
         setState(() => _isLoading = false);
         Navigator.pushReplacementNamed(context, AppRoutes.chat);
       }
@@ -79,7 +85,7 @@ class _SignupScreenState extends State<SignupScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.bg,
       body: FadeTransition(
         opacity: _fadeAnim,
         child: SafeArea(
@@ -100,13 +106,13 @@ class _SignupScreenState extends State<SignupScreen>
                           width: 42,
                           height: 42,
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: context.surface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.border),
+                            border: Border.all(color: context.border),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_back_ios_new_rounded,
-                            color: AppColors.textPrimary,
+                            color: context.textPrimary,
                             size: 18,
                           ),
                         ),
@@ -114,26 +120,35 @@ class _SignupScreenState extends State<SignupScreen>
                     ],
                   ),
                   const SizedBox(height: 28),
+                  // Logo
+                  Center(child: _buildLogo()),
+                  const SizedBox(height: 28),
                   // Heading
-                  ShaderMask(
-                    shaderCallback: (b) =>
-                        AppColors.primaryGradient.createShader(b),
-                    child: Text(
-                      'Create Account',
-                      style: GoogleFonts.inter(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.8,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Start your presentation coaching journey',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      color: AppColors.textSecondary,
+                  Center(
+                    child: Column(
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (b) =>
+                              AppColors.primaryGradient.createShader(b),
+                          child: Text(
+                            'Create Account',
+                            style: GoogleFonts.inter(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.8,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Start your presentation coaching journey',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: context.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -186,11 +201,11 @@ class _SignupScreenState extends State<SignupScreen>
                         _obscurePassword
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        color: AppColors.textSecondary,
+                        color: context.textSecondary,
                         size: 20,
                       ),
-                      onPressed: () => setState(
-                          () => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     validator: (v) {
                       if (v == null || v.isEmpty) {
@@ -217,7 +232,7 @@ class _SignupScreenState extends State<SignupScreen>
                         _obscureConfirm
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        color: AppColors.textSecondary,
+                        color: context.textSecondary,
                         size: 20,
                       ),
                       onPressed: () =>
@@ -236,8 +251,7 @@ class _SignupScreenState extends State<SignupScreen>
                   const SizedBox(height: 24),
                   // Terms checkbox
                   GestureDetector(
-                    onTap: () =>
-                        setState(() => _agreeToTerms = !_agreeToTerms),
+                    onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -254,7 +268,7 @@ class _SignupScreenState extends State<SignupScreen>
                             border: Border.all(
                               color: _agreeToTerms
                                   ? Colors.transparent
-                                  : AppColors.border,
+                                  : context.border,
                               width: 1.5,
                             ),
                           ),
@@ -269,7 +283,7 @@ class _SignupScreenState extends State<SignupScreen>
                             text: TextSpan(
                               style: GoogleFonts.inter(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: context.textSecondary,
                                 height: 1.5,
                               ),
                               children: [
@@ -306,8 +320,35 @@ class _SignupScreenState extends State<SignupScreen>
                     isLoading: _isLoading,
                     onTap: _signup,
                     icon: Icons.person_add_alt_1_rounded,
+                    gradientColors: const [
+                      AppColors.accentPurple,
+                      AppColors.accentPink
+                    ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 36),
+                  // Divider
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Divider(color: context.border, height: 1)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'or',
+                          style: GoogleFonts.inter(
+                            color: context.textHint,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                          child: Divider(color: context.border, height: 1)),
+                    ],
+                  ),
+                  const SizedBox(height: 36),
+                  // Google Sign up
+                  _buildGoogleButton(),
+                  const SizedBox(height: 36),
                   // Login link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -315,7 +356,7 @@ class _SignupScreenState extends State<SignupScreen>
                       Text(
                         'Already have an account? ',
                         style: GoogleFonts.inter(
-                          color: AppColors.textSecondary,
+                          color: context.textSecondary,
                           fontSize: 14,
                         ),
                       ),
@@ -335,6 +376,88 @@ class _SignupScreenState extends State<SignupScreen>
                   const SizedBox(height: 32),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      width: 76,
+      height: 76,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Image.asset(
+          'assets/images/logo.png',
+          width: 76,
+          height: 76,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoogleButton() {
+    return Container(
+      width: double.infinity,
+      height: 54,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        gradient: const LinearGradient(
+          colors: [AppColors.accentPurple, AppColors.accentPink],
+        ),
+      ),
+      padding: const EdgeInsets.all(1.5),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(6.5),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(6.5),
+            onTap: () async {
+              setState(() => _isLoading = true);
+              final success =
+                  await context.read<UserProvider>().signInWithGoogle();
+              setState(() => _isLoading = false);
+
+              if (success && mounted) {
+                Navigator.pushReplacementNamed(context, AppRoutes.chat);
+              } else if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Google Sign-In failed. Please make sure Google Sign-In is enabled in your Firebase Console.'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              }
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  'assets/images/google_logo.svg',
+                  width: 24,
+                  height: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Continue with Google',
+                  style: GoogleFonts.inter(
+                    color: Colors.black87,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

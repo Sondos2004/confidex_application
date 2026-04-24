@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_ext.dart';
 import '../../core/theme/theme_provider.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/routes/app_routes.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../../widgets/glass_container.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -53,16 +56,11 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    final bg = AppColors.background;
-    final surface = AppColors.surface;
-    final card = AppColors.cardBackground;
-    final textPrimary = AppColors.textPrimary;
-    final textSecondary = AppColors.textSecondary;
-    final textHint = AppColors.textHint;
-    final border = AppColors.border;
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.isDark;
 
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: context.bg,
       body: FadeTransition(
         opacity: _fadeAnim,
         child: SlideTransition(
@@ -70,19 +68,19 @@ class _ProfileScreenState extends State<ProfileScreen>
           child: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 220,
+                expandedHeight: 250,
                 pinned: true,
-                backgroundColor: surface,
+                backgroundColor: context.surface,
                 leading: IconButton(
                   icon: Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    color: textPrimary,
+                    color: context.textPrimary,
                     size: 20,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: _buildHeader(textPrimary, textSecondary),
+                  background: _buildHeader(context.surface, context.textPrimary, context.textSecondary),
                 ),
               ),
               SliverToBoxAdapter(
@@ -91,17 +89,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildStatsRow(card, textPrimary, textSecondary, border),
+                      _buildStatsRow(context.cardBackground, context.textPrimary, context.textSecondary, context.border),
                       const SizedBox(height: 28),
-                      _buildSectionLabel('Appearance', textHint),
+                      _buildSectionLabel('Appearance', context.textHint),
                       const SizedBox(height: 10),
-                      _buildSettingsCard(surface, border, [
-                        _buildThemeToggle(textPrimary, textSecondary),
+                      _buildSettingsCard(context.surface, context.border, [
+                        _buildThemeToggle(context.textPrimary, context.textSecondary),
                       ]),
                       const SizedBox(height: 20),
-                      _buildSectionLabel('Preferences', textHint),
+                      _buildSectionLabel('Preferences', context.textHint),
                       const SizedBox(height: 10),
-                      _buildSettingsCard(surface, border, [
+                      _buildSettingsCard(context.surface, context.border, [
                         _buildSwitchRow(
                           icon: Icons.notifications_outlined,
                           label: 'Push Notifications',
@@ -110,50 +108,59 @@ class _ProfileScreenState extends State<ProfileScreen>
                           onChanged: (v) {
                             setState(() => _notificationsEnabled = v);
                           },
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
+                          textPrimary: context.textPrimary,
+                          textSecondary: context.textSecondary,
                         ),
                       ]),
                       const SizedBox(height: 20),
-                      _buildSectionLabel('Account', textHint),
+                      _buildSectionLabel('Account', context.textHint),
                       const SizedBox(height: 10),
-                      _buildSettingsCard(surface, border, [
+                      _buildSettingsCard(context.surface, context.border, [
                         _buildTapRow(
                           icon: Icons.lock_outline_rounded,
                           label: 'Privacy & Security',
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          onTap: () {},
+                          textPrimary: context.textPrimary,
+                          textSecondary: context.textSecondary,
+                          onTap: () => _showInfoDialog(
+                            'Privacy & Security',
+                            'Your data is securely stored. You can manage your privacy settings and permissions from the system settings.',
+                          ),
                         ),
                         Divider(
                           height: 1,
-                          color: border,
+                          color: context.border,
                           indent: 52,
                         ),
                         _buildTapRow(
                           icon: Icons.help_outline_rounded,
                           label: 'Help & Support',
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          onTap: () {},
+                          textPrimary: context.textPrimary,
+                          textSecondary: context.textSecondary,
+                          onTap: () => _showInfoDialog(
+                            'Help & Support',
+                            'Need help? Contact our support team at support@confidex.app or visit our knowledge base online.',
+                          ),
                         ),
                         Divider(
                           height: 1,
-                          color: border,
+                          color: context.border,
                           indent: 52,
                         ),
                         _buildTapRow(
                           icon: Icons.info_outline_rounded,
                           label: 'About Confidex',
                           subtitle: 'Version 1.0.0',
-                          textPrimary: textPrimary,
-                          textSecondary: textSecondary,
-                          onTap: () {},
+                          textPrimary: context.textPrimary,
+                          textSecondary: context.textSecondary,
+                          onTap: () => _showInfoDialog(
+                            'About Confidex',
+                            'Confidex is an AI-powered communication coach designed to help you present with confidence.',
+                          ),
                         ),
                       ]),
                       const SizedBox(height: 32),
-                      _buildSignOutButton(surface),
-                    ],
+                      _buildSignOutButton(context.surface),
+                    ].animate(interval: 50.ms).fadeIn(duration: 400.ms).slideY(begin: 0.05, end: 0, curve: Curves.easeOutQuad),
                   ),
                 ),
               ),
@@ -164,12 +171,12 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildHeader(Color textPrimary, Color textSecondary) {
+  Widget _buildHeader(Color surface, Color textPrimary, Color textSecondary) {
     final user = context.watch<UserProvider>();
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: surface,
       ),
       child: SafeArea(
         child: Column(
@@ -285,14 +292,11 @@ class _ProfileScreenState extends State<ProfileScreen>
       children: stats.asMap().entries.map((e) {
         final s = e.value;
         return Expanded(
-          child: Container(
+          child: GlassContainer(
             margin: EdgeInsets.only(left: e.key == 0 ? 0 : 8),
             padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-            decoration: BoxDecoration(
-              color: card,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: border),
-            ),
+            borderRadius: 18,
+            borderColor: const Color(0x1AFFFFFF),
             child: Column(
               children: [
                 ShaderMask(
@@ -345,12 +349,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       Color border,
       List<Widget> children,
       ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: border),
-      ),
+    return GlassContainer(
+      borderRadius: 18,
+      borderColor: const Color(0x1AFFFFFF),
       child: Column(children: children),
     );
   }
@@ -602,16 +603,11 @@ class _ProfileScreenState extends State<ProfileScreen>
           Navigator.pushReplacementNamed(context, AppRoutes.login);
         }
       },
-      child: Container(
+      child: GlassContainer(
         width: double.infinity,
         height: 54,
-        decoration: BoxDecoration(
-          color: surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.error.withOpacity(0.4),
-          ),
-        ),
+        borderRadius: 16,
+        borderColor: AppColors.error.withOpacity(0.4),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -631,6 +627,37 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showInfoDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(
+          title,
+          style: GoogleFonts.inter(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          content,
+          style: GoogleFonts.inter(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Close',
+              style: GoogleFonts.inter(color: AppColors.accentBlue),
+            ),
+          ),
+        ],
       ),
     );
   }

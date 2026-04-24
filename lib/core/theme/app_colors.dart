@@ -36,6 +36,13 @@ class AppColors {
     colors: [accentPurple, accentPink],
   );
 
+  // Light theme text gradient (pink-purple)
+  static const LinearGradient lightTextGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [accentPurple, accentPink],
+  );
+
   // Report Score Colors
   static const Color scoreConfidence = Color(0xFF9D44FD);
   static const Color scoreNervousness = Color(0xFFF2439A);

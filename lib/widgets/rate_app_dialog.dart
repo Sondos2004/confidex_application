@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/theme_ext.dart';
 
 class RateAppDialog extends StatefulWidget {
   const RateAppDialog({super.key});
@@ -62,14 +63,14 @@ class _RateAppDialogState extends State<RateAppDialog> {
     }
   }
 
-  Color get _ratingColor {
+  Color _getRatingColor(BuildContext context) {
     switch (_selectedRating) {
       case 1: return AppColors.error;
       case 2: return AppColors.warning;
       case 3: return const Color(0xFFFFDA6A);
       case 4: return AppColors.success;
       case 5: return AppColors.accentBlue;
-      default: return AppColors.textSecondary;
+      default: return context.textSecondary;
     }
   }
 
@@ -81,9 +82,9 @@ class _RateAppDialogState extends State<RateAppDialog> {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 28),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.surface,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: AppColors.border, width: 1),
+            border: Border.all(color: context.border, width: 1),
             boxShadow: [
               BoxShadow(
                 color: AppColors.accentPurple.withOpacity(0.15),
@@ -109,7 +110,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.border,
+              color: context.border,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -137,7 +138,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
             style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
               letterSpacing: -0.3,
             ),
           ),
@@ -147,7 +148,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: context.textSecondary,
               height: 1.6,
             ),
           ),
@@ -175,7 +176,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
                       child: Icon(
                         isActive ? Icons.star_rounded : Icons.star_outline_rounded,
                         size: 40,
-                        color: isActive ? AppColors.warning : AppColors.border,
+                        color: isActive ? AppColors.warning : context.border,
                       ),
                     ),
                   ),
@@ -189,7 +190,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: _ratingColor,
+              color: _getRatingColor(context),
             ),
             child: Text(_ratingLabel),
           ),
@@ -197,21 +198,21 @@ class _RateAppDialogState extends State<RateAppDialog> {
           // Optional comment
           Container(
             decoration: BoxDecoration(
-              color: AppColors.cardBackground,
+              color: context.cardBackground,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.border),
             ),
             child: TextField(
               controller: _commentController,
               maxLines: 3,
               style: GoogleFonts.inter(
-                color: AppColors.textPrimary,
+                color: context.textPrimary,
                 fontSize: 14,
               ),
               decoration: InputDecoration(
                 hintText: 'Share your thoughts (optional)...',
                 hintStyle: GoogleFonts.inter(
-                  color: AppColors.textHint,
+                  color: context.textHint,
                   fontSize: 14,
                 ),
                 border: InputBorder.none,
@@ -234,8 +235,8 @@ class _RateAppDialogState extends State<RateAppDialog> {
                 decoration: BoxDecoration(
                   gradient: _selectedRating > 0
                       ? AppColors.primaryGradient
-                      : const LinearGradient(
-                          colors: [AppColors.border, AppColors.border],
+                      : LinearGradient(
+                          colors: [context.border, context.border],
                         ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: _selectedRating > 0
@@ -276,7 +277,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
             child: Text(
               'Maybe Later',
               style: GoogleFonts.inter(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -324,7 +325,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
             style: GoogleFonts.inter(
               fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 10),
@@ -333,7 +334,7 @@ class _RateAppDialogState extends State<RateAppDialog> {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: context.textSecondary,
               height: 1.6,
             ),
           ),

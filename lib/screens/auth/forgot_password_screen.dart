@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_ext.dart';
 import '../../widgets/gradient_button.dart';
 import '../../widgets/app_text_field.dart';
 
@@ -63,7 +64,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.bg,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -78,13 +79,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.border),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.textPrimary,
+                    color: context.textPrimary,
                     size: 18,
                   ),
                 ),
@@ -139,7 +140,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             style: GoogleFonts.inter(
               fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
               letterSpacing: -0.8,
             ),
           ),
@@ -148,7 +149,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             'Enter the email address linked to your Confidex account and we\'ll send you a reset link.',
             style: GoogleFonts.inter(
               fontSize: 15,
-              color: AppColors.textSecondary,
+              color: context.textSecondary,
               height: 1.6,
             ),
           ),
@@ -184,7 +185,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               child: Text(
                 'Back to Sign In',
                 style: GoogleFonts.inter(
-                  color: AppColors.textSecondary,
+                  color: context.textSecondary,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -243,7 +244,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             style: GoogleFonts.inter(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: context.textPrimary,
               letterSpacing: -0.5,
             ),
             textAlign: TextAlign.center,
@@ -254,7 +255,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             text: TextSpan(
               style: GoogleFonts.inter(
                 fontSize: 15,
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
                 height: 1.7,
               ),
               children: [
@@ -275,7 +276,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             'Didn\'t receive the email? Check your spam folder\nor try with a different email address.',
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: AppColors.textHint,
+              color: context.textHint,
               height: 1.6,
             ),
             textAlign: TextAlign.center,
@@ -292,14 +293,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               padding:
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.surface,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.border),
               ),
               child: Text(
                 'Try a Different Email',
                 style: GoogleFonts.inter(
-                  color: AppColors.textPrimary,
+                  color: context.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -312,7 +313,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             child: Text(
               'Back to Sign In',
               style: GoogleFonts.inter(
-                color: AppColors.textSecondary,
+                color: context.textSecondary,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

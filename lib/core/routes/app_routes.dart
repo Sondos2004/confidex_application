@@ -5,6 +5,7 @@ import '../../screens/auth/login_screen.dart';
 import '../../screens/auth/signup_screen.dart';
 import '../../screens/auth/forgot_password_screen.dart';
 import '../../screens/chat/chat_screen.dart';
+import '../../screens/profile/profile_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -15,6 +16,7 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
   static const String chat = '/chat';
+  static const String profile = '/profile';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     Widget page;
@@ -36,6 +38,9 @@ class AppRoutes {
         break;
       case chat:
         page = const ChatScreen();
+        break;
+      case profile:
+        page = const ProfileScreen();
         break;
       default:
         page = const SplashScreen();

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "922708522833",
+    "project_id": "confidex-sondos-2026",
+    "storage_bucket": "confidex-sondos-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922708522833:android:e2bcd13c417b01ab1a8570",
+        "android_client_info": {
+          "package_name": "com.example.confidex_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb_J1rPSyLmY6Xx_aq7wX7j8TANLZ-RuM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

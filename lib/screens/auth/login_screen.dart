@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_ext.dart';
 import '../../core/routes/app_routes.dart';
 import '../../widgets/gradient_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../core/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,8 +34,7 @@ class _LoginScreenState extends State<LoginScreen>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     )..forward();
-    _fadeAnim =
-        CurvedAnimation(parent: _entryController, curve: Curves.easeIn);
+    _fadeAnim = CurvedAnimation(parent: _entryController, curve: Curves.easeIn);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.05),
       end: Offset.zero,
@@ -52,9 +54,18 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
+
       await Future.delayed(const Duration(milliseconds: 1500));
+
       if (mounted) {
+        final email = _emailController.text.trim();
+
+        await context.read<UserProvider>().loginUser(
+              email: email,
+            );
+
         setState(() => _isLoading = false);
+
         Navigator.pushReplacementNamed(context, AppRoutes.chat);
       }
     }
@@ -63,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.bg,
       body: FadeTransition(
         opacity: _fadeAnim,
         child: SlideTransition(
@@ -81,21 +92,31 @@ class _LoginScreenState extends State<LoginScreen>
                     Center(child: _buildLogo()),
                     const SizedBox(height: 36),
                     // Heading
-                    Text(
-                      'Welcome back',
-                      style: GoogleFonts.inter(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Sign in to continue your journey',
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        color: AppColors.textSecondary,
+                    Center(
+                      child: Column(
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (b) =>
+                                AppColors.primaryGradient.createShader(b),
+                            child: Text(
+                              'Welcome back',
+                              style: GoogleFonts.inter(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: -0.8,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Sign in to continue your journey',
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              color: context.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 36),
@@ -133,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen>
                           _obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
-                          color: AppColors.textSecondary,
+                          color: context.textSecondary,
                           size: 20,
                         ),
                         onPressed: () => setState(
@@ -177,25 +198,29 @@ class _LoginScreenState extends State<LoginScreen>
                       isLoading: _isLoading,
                       onTap: _login,
                       icon: Icons.login_rounded,
+                      gradientColors: const [
+                        AppColors.accentPurple,
+                        AppColors.accentPink
+                      ],
                     ),
                     const SizedBox(height: 36),
                     // Divider
                     Row(
                       children: [
-                        const Expanded(
-                            child: Divider(color: AppColors.border, height: 1)),
+                        Expanded(
+                            child: Divider(color: context.border, height: 1)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             'or',
                             style: GoogleFonts.inter(
-                              color: AppColors.textHint,
+                              color: context.textHint,
                               fontSize: 13,
                             ),
                           ),
                         ),
-                        const Expanded(
-                            child: Divider(color: AppColors.border, height: 1)),
+                        Expanded(
+                            child: Divider(color: context.border, height: 1)),
                       ],
                     ),
                     const SizedBox(height: 36),
@@ -206,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen>
                         Text(
                           "Don't have an account? ",
                           style: GoogleFonts.inter(
-                            color: AppColors.textSecondary,
+                            color: context.textSecondary,
                             fontSize: 14,
                           ),
                         ),
@@ -241,17 +266,15 @@ class _LoginScreenState extends State<LoginScreen>
       height: 76,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        gradient: AppColors.primaryGradient,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.accentBlue.withOpacity(0.4),
-            blurRadius: 28,
-            spreadRadius: 2,
-          ),
-        ],
       ),
-      child: const Center(
-        child: Icon(Icons.videocam_rounded, color: Colors.white, size: 32),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Image.asset(
+          'assets/images/logo.png',
+          width: 76,
+          height: 76,
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

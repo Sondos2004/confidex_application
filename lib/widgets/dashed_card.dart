@@ -1,28 +1,28 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../core/theme/app_colors.dart';
+import '../core/theme/theme_ext.dart';
 
 class DashedCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
-  final Color color;
-  final Color borderColor;
+  final Color? color;
+  final Color? borderColor;
 
   const DashedCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(24),
     this.borderRadius = 16.0,
-    this.color = AppColors.surface,
-    this.borderColor = AppColors.border,
+    this.color,
+    this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       painter: _DashedRectPainter(
-        color: borderColor,
+        color: borderColor ?? context.border,
         strokeWidth: 1.5,
         gap: 6.0,
         borderRadius: borderRadius,
@@ -30,7 +30,7 @@ class DashedCard extends StatelessWidget {
       child: Container(
         padding: padding,
         decoration: BoxDecoration(
-          color: color,
+          color: color ?? context.surface,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: child,

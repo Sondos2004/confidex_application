@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_ext.dart';
 import '../../core/routes/app_routes.dart';
 
 class _OnboardingPage {
@@ -106,7 +106,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget build(BuildContext context) {
     final page = _pages[_currentPage];
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.bg,
       body: FadeTransition(
         opacity: _entryOpacity,
         child: SlideTransition(
@@ -122,7 +122,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     end: Alignment.center,
                     colors: [
                       page.colors[0].withOpacity(0.07),
-                      AppColors.background,
+                      context.bg,
                     ],
                   ),
                 ),
@@ -150,7 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     child: Text(
                       'Skip',
                       style: GoogleFonts.inter(
-                        color: AppColors.textSecondary,
+                        color: context.textSecondary,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
@@ -218,7 +218,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   page.description,
                   style: GoogleFonts.inter(
                     fontSize: 15,
-                    color: AppColors.textSecondary,
+                    color: context.textSecondary,
                     height: 1.7,
                   ),
                 ),
@@ -271,7 +271,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             count: _pages.length,
             effect: ExpandingDotsEffect(
               activeDotColor: page.colors[0],
-              dotColor: AppColors.surfaceLight,
+              dotColor: context.surfaceLight,
               dotHeight: 8,
               dotWidth: 8,
               expansionFactor: 4,

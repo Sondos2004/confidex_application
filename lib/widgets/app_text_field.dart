@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../core/theme/app_colors.dart';
+import '../core/theme/theme_ext.dart';
 
 class AppTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -40,7 +40,7 @@ class AppTextField extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: context.textSecondary,
             letterSpacing: 0.2,
           ),
         ),
@@ -54,7 +54,7 @@ class AppTextField extends StatelessWidget {
           textInputAction: textInputAction,
           onEditingComplete: onEditingComplete,
           style: GoogleFonts.inter(
-            color: AppColors.textPrimary,
+            color: context.textPrimary,
             fontSize: 15,
           ),
           decoration: InputDecoration(
@@ -64,7 +64,7 @@ class AppTextField extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 14, right: 10),
                     child: Icon(
                       prefixIcon,
-                      color: AppColors.textHint,
+                      color: context.textHint,
                       size: 20,
                     ),
                   )

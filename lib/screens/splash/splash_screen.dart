@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_ext.dart';
 import '../../core/routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -90,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.bg,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -200,7 +201,7 @@ class _SplashScreenState extends State<SplashScreen>
                             'Present with Confidence',
                             style: GoogleFonts.inter(
                               fontSize: 15,
-                              color: AppColors.textSecondary,
+                              color: context.textSecondary,
                               fontWeight: FontWeight.w400,
                               letterSpacing: 0.8,
                             ),
@@ -247,58 +248,13 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _buildLogo() {
-    return AnimatedBuilder(
-      animation: _glowController,
-      builder: (_, child) => Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.accentBlue
-                  .withOpacity(0.35 * _glowSize.value),
-              blurRadius: 40,
-              spreadRadius: 4,
-            ),
-            BoxShadow(
-              color: AppColors.accentPurple
-                  .withOpacity(0.2 * _glowSize.value),
-              blurRadius: 70,
-              spreadRadius: 12,
-            ),
-          ],
-        ),
-        child: child,
-      ),
-      child: Container(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: Image.asset(
+        'assets/images/logo.png',
         width: 110,
         height: 110,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          gradient: AppColors.primaryGradient,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.videocam_rounded, color: Colors.white, size: 40),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.auto_awesome, color: Colors.white70, size: 14),
-                const SizedBox(width: 4),
-                Text(
-                  'AI',
-                  style: GoogleFonts.inter(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        fit: BoxFit.cover,
       ),
     );
   }
