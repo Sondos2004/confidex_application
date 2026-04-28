@@ -80,7 +80,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                   onPressed: () => Navigator.pop(context),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: _buildHeader(context.surface, context.textPrimary, context.textSecondary),
+                  background: _buildHeader(context.surface, context.textPrimary,
+                      context.textSecondary),
                 ),
               ),
               SliverToBoxAdapter(
@@ -89,12 +90,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildStatsRow(context.cardBackground, context.textPrimary, context.textSecondary, context.border),
+                      _buildStatsRow(
+                          context.cardBackground,
+                          context.textPrimary,
+                          context.textSecondary,
+                          context.border),
                       const SizedBox(height: 28),
                       _buildSectionLabel('Appearance', context.textHint),
                       const SizedBox(height: 10),
                       _buildSettingsCard(context.surface, context.border, [
-                        _buildThemeToggle(context.textPrimary, context.textSecondary),
+                        _buildThemeToggle(
+                            context.textPrimary, context.textSecondary),
                       ]),
                       const SizedBox(height: 20),
                       _buildSectionLabel('Preferences', context.textHint),
@@ -160,7 +166,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ]),
                       const SizedBox(height: 32),
                       _buildSignOutButton(context.surface),
-                    ].animate(interval: 50.ms).fadeIn(duration: 400.ms).slideY(begin: 0.05, end: 0, curve: Curves.easeOutQuad),
+                    ]
+                        .animate(interval: 50.ms)
+                        .fadeIn(duration: 400.ms)
+                        .slideY(begin: 0.05, end: 0, curve: Curves.easeOutQuad),
                   ),
                 ),
               ),
@@ -277,11 +286,11 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildStatsRow(
-      Color card,
-      Color textPrimary,
-      Color textSecondary,
-      Color border,
-      ) {
+    Color card,
+    Color textPrimary,
+    Color textSecondary,
+    Color border,
+  ) {
     final stats = [
       ('12', 'Videos\nAnalyzed', Icons.video_library_rounded),
       ('84', 'Tips\nReceived', Icons.lightbulb_outline_rounded),
@@ -345,10 +354,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildSettingsCard(
-      Color surface,
-      Color border,
-      List<Widget> children,
-      ) {
+    Color surface,
+    Color border,
+    List<Widget> children,
+  ) {
     return GlassContainer(
       borderRadius: 18,
       borderColor: const Color(0x1AFFFFFF),
