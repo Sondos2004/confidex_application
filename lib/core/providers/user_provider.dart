@@ -3,8 +3,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class UserProvider extends ChangeNotifier {
   static const _keyName = 'user_name';
@@ -104,6 +102,53 @@ class UserProvider extends ChangeNotifier {
     debugPrint('LOGIN USER EMAIL: $_email');
 
     notifyListeners();
+  }
+
+  Future<void> signupWithEmailPassword({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    final cleanEmail = email.trim();
+    final cleanName = name.trim();
+
+    if (cleanEmail.isEmpty || password.isEmpty) {
+      throw FirebaseAuthException(
+          code: 'invalid-input', message: 'Email and password cannot be empty.');
+    }
+
+    // 1. Create user in Firebase
+    final UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: cleanEmail, password: password);
+
+    // 2. Update display name in Firebase
+    await userCredential.user?.updateDisplayName(cleanName);
+
+    // 3. Save locally using existing logic
+    await saveUser(name: cleanName, email: cleanEmail);
+  }
+
+  Future<void> loginWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
+    final cleanEmail = email.trim();
+
+    if (cleanEmail.isEmpty || password.isEmpty) {
+      throw FirebaseAuthException(
+          code: 'invalid-input', message: 'Email and password cannot be empty.');
+    }
+
+    // 1. Log in with Firebase
+    final UserCredential userCredential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: cleanEmail, password: password);
+
+    // 2. Update local state
+    final user = userCredential.user;
+    if (user != null) {
+      final displayName = user.displayName ?? cleanEmail.split('@').first;
+      await saveUser(name: displayName, email: cleanEmail);
+    }
   }
 
   Future<void> clearUser() async {

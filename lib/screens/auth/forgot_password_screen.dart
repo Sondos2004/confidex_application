@@ -31,8 +31,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       duration: const Duration(milliseconds: 700),
     );
     _successScale = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _successController, curve: Curves.elasticOut),
+      CurvedAnimation(parent: _successController, curve: Curves.elasticOut),
     );
     _successOpacity = CurvedAnimation(
       parent: _successController,
@@ -125,8 +124,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             decoration: BoxDecoration(
               color: AppColors.accentBlue.withOpacity(0.12),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                  color: AppColors.accentBlue.withOpacity(0.2)),
+              border: Border.all(color: AppColors.accentBlue.withOpacity(0.2)),
             ),
             child: const Icon(
               Icons.lock_reset_rounded,
@@ -164,8 +162,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             onEditingComplete: _sendResetLink,
             validator: (v) {
               if (v == null || v.isEmpty) return 'Email is required';
-              if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
-                  .hasMatch(v)) {
+              if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) {
                 return 'Enter a valid email address';
               }
               return null;
@@ -213,8 +210,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             tween: Tween(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 800),
             curve: Curves.elasticOut,
-            builder: (_, v, child) =>
-                Transform.scale(scale: v, child: child),
+            builder: (_, v, child) => Transform.scale(scale: v, child: child),
             child: Container(
               width: 110,
               height: 110,
@@ -290,8 +286,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               _successController.reset();
             }),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               decoration: BoxDecoration(
                 color: context.surface,
                 borderRadius: BorderRadius.circular(14),
