@@ -6,6 +6,7 @@ import '../../core/theme/theme_ext.dart';
 import '../../core/routes/app_routes.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../widgets/glass_container.dart';
+import '../../widgets/recording_instructions_dialog.dart';
 
 enum PracticeState { upload, analyzing, report }
 
@@ -103,6 +104,45 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void _startAnalysis() {
+    if (_pickedVideo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.error_outline_rounded,
+                    color: AppColors.error, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Please upload a video to continue',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: context.surface,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0x1AFFFFFF)),
+          ),
+          margin: const EdgeInsets.all(24),
+          elevation: 0,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _currentState = PracticeState.analyzing;
       _videoProgress = 0.0;
@@ -295,7 +335,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         _buildMainGradientButton(
           text: 'Submit for Analysis',
           onPressed: _startAnalysis,
-        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
+        )
+            .animate()
+            .fadeIn(delay: 200.ms)
+            .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
         const SizedBox(height: 24),
       ],
     ).animate().fadeIn(duration: 400.ms);
@@ -304,7 +347,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Widget _buildVideoUploadCard() {
     final picked = _pickedVideo != null;
     return GestureDetector(
-      onTap: _showVideoOptions,
+      onTap: () {
+        RecordingInstructionsDialog.show(
+          context: context,
+          onAgree: _showVideoOptions,
+        );
+      },
       child: GlassContainer(
         borderRadius: 24,
         padding: const EdgeInsets.all(28),
@@ -676,24 +724,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   color: AppColors.accentPurple,
                   progress: 0.34,
                 ),
-                const SizedBox(height: 16),
-                _buildScoreCard(
-                  title: 'Accuracy Score',
-                  score: '92/100',
-                  icon: '🎯',
-                  color: AppColors.accentPurple,
-                  progress: 0.92,
-                ),
-                const SizedBox(height: 16),
-                _buildScoreCard(
-                  title: 'Overall Performance',
-                  score: 'Excellent',
-                  icon: '⭐',
-                  color: AppColors.accentPurple,
-                  progress: 0.9,
-                  isTextScore: true,
-                ),
-              ].animate(interval: 100.ms).fadeIn(duration: 400.ms).slideX(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
+              ]
+                  .animate(interval: 100.ms)
+                  .fadeIn(duration: 400.ms)
+                  .slideX(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
             ),
           ),
         ).animate().fadeIn(duration: 500.ms),
@@ -772,7 +806,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     required String icon,
     required Color color,
     required double progress,
-    bool isTextScore = false,
   }) {
     return GlassContainer(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
