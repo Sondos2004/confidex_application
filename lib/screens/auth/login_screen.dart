@@ -7,6 +7,7 @@ import '../../widgets/gradient_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../../core/providers/user_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -55,18 +56,63 @@ class _LoginScreenState extends State<LoginScreen>
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      await Future.delayed(const Duration(milliseconds: 1500));
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-      if (mounted) {
-        final email = _emailController.text.trim();
-
-        await context.read<UserProvider>().loginUser(
+      try {
+        await context.read<UserProvider>().loginWithEmailPassword(
               email: email,
+              password: password,
             );
 
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+          Navigator.pushReplacementNamed(context, AppRoutes.chat);
+        }
+      } on FirebaseAuthException catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
 
-        Navigator.pushReplacementNamed(context, AppRoutes.chat);
+          String message = 'An error occurred. Please try again.';
+          if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
+            message = 'No account found. Please sign up.';
+          } else if (e.code == 'wrong-password') {
+            message = 'Incorrect password provided.';
+          } else if (e.message != null) {
+            message = e.message!;
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'An unexpected error occurred.',
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+          );
+        }
       }
     }
   }

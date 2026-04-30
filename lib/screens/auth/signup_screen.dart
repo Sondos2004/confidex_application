@@ -8,6 +8,7 @@ import '../../widgets/app_text_field.dart';
 import '../../core/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -70,14 +71,62 @@ class _SignupScreenState extends State<SignupScreen>
     }
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      await Future.delayed(const Duration(milliseconds: 1500));
-      if (mounted) {
-        final email = _emailController.text.trim();
-        final name = _nameController.text.trim();
-        await context.read<UserProvider>().saveUser(name: name, email: email);
+      final email = _emailController.text.trim();
+      final name = _nameController.text.trim();
+      final password = _passwordController.text;
 
-        setState(() => _isLoading = false);
-        Navigator.pushReplacementNamed(context, AppRoutes.chat);
+      try {
+        await context.read<UserProvider>().signupWithEmailPassword(
+              name: name,
+              email: email,
+              password: password,
+            );
+
+        if (mounted) {
+          setState(() => _isLoading = false);
+          Navigator.pushReplacementNamed(context, AppRoutes.chat);
+        }
+      } on FirebaseAuthException catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          String message = 'An error occurred. Please try again.';
+          if (e.code == 'email-already-in-use') {
+            message = 'This email is already in use. Please sign in.';
+          } else if (e.code == 'weak-password') {
+            message = 'The password provided is too weak.';
+          } else if (e.message != null) {
+            message = e.message!;
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'An unexpected error occurred.',
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+          );
+        }
       }
     }
   }
@@ -432,7 +481,7 @@ class _SignupScreenState extends State<SignupScreen>
                 Navigator.pushReplacementNamed(context, AppRoutes.chat);
               } else if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text(
                         'Google Sign-In failed. Please make sure Google Sign-In is enabled in your Firebase Console.'),
                     backgroundColor: Colors.redAccent,
